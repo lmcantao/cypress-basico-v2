@@ -5,12 +5,13 @@ describe('Central de Atendimento ao Cliente TAT', function() {
         cy.visit('./src/index.html')
     })
     
-    it.only('verifica o título da aplicação', () => {
+    it('verifica o título da aplicação', () => {
         cy.title().should('eq', 'Central de Atendimento ao Cliente TAT')
         cy.get('#title')
             .should(($titlrH1) => {
                 expect($titlrH1[0].innerText).to.equal('CAC TAT')
             })
+            .should('be.visible')
     })
 
     it('preenche os campos obrigatórios e envia o formulário', () => {
@@ -137,13 +138,43 @@ describe('Central de Atendimento ao Cliente TAT', function() {
             })
     });
 
-    it.only('seleciona um arquivo simulando um drag-and-drop', () => {
+    it('seleciona um arquivo simulando um drag-and-drop', () => {
         cy.get('#file-upload')
             .should('not.have.value')
             .selectFile('./cypress/fixtures/example.json', {action: 'drag-drop'})
             .should(($input) => {
                 expect($input[0].files[0].name).to.equal('example.json')
             })
+    });
+
+    it('testando possibilidades utilizando comandos avançados', () => {
+        cy.get('div#support-type')
+            .children()
+            .eq(2)
+            .children()
+            .check()
+    });
+
+    it.only('seleciona um arquivo utilizando uma fixture para a qual foi dada um alias', () => {
+        cy.fixture('example.json').as('sampleFile')
+        cy.get('#file-upload')
+            .selectFile('@sampleFile')
+            .should(($input) => {
+                expect($input[0].files[0].name).to.equal('example.json')
+            })
+    });
+
+    it('verifica que a política de privacidade abre em outra aba sem a necessidade de um clique', () => {
+        cy.get('#privacy a').should('have.attr', 'target', '_blank')
+    });
+
+    it('acessa a página da política de privacidade removendo o target e então clicando no link', () => {
+        cy.get('#privacy a')
+            .invoke('removeAttr', 'target')
+            .click()
+        
+        cy.contains('CAC TAT - Política de privacidade').should('be.visible')
+        cy.contains('Talking About Testing').should('be.visible')
     });
   })
   
